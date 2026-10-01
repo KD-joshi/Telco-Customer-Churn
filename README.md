@@ -97,31 +97,35 @@ curl -X POST http://localhost:8000/predict \
 
 ## Model Comparison
 
-| Metric     | Logistic Regression | XGBoost (Tuned) |
-|------------|:-------------------:|:---------------:|
-| Accuracy   | 0.7381              | 0.7459          |
-| F1 Score   | 0.6136              | 0.6232          |
-| ROC-AUC    | 0.8415              | 0.8464          |
-| PR-AUC     | 0.6314              | 0.6620          |
+| Metric     | Logistic Regression | XGBoost (threshold=0.50) | XGBoost (threshold=0.58) |
+|------------|:-------------------:|:------------------------:|:------------------------:|
+| **Accuracy**| 0.7417              | 0.7466                   | **0.7807**               |
+| **F1 Score**| 0.6152              | 0.6270                   | **0.6411**               |
+| **ROC-AUC** | 0.8418              | 0.8476                   | **0.8476**               |
+| **PR-AUC**  | 0.6312              | 0.6620                   | **0.6620**               |
 
-**Selected model:** XGBoost (Tuned)
+**Selected model:** XGBoost (Optimized Threshold)
 
 **Best hyperparameters** (via 5-fold stratified CV, scored on ROC-AUC):
 - `learning_rate`: 0.05
 - `max_depth`: 3
 - `n_estimators`: 100
 - `subsample`: 0.8
+- `colsample_bytree`: 0.8
+- `min_child_weight`: 3
 
 ### Why Not Accuracy?
 
-With a ~73/27 class split, a model that simply predicts "No Churn" for every customer scores ~73% accuracy while catching zero actual churners. Accuracy fails to reflect how well the model identifies the minority class — which is the entire business objective. ROC-AUC, PR-AUC, and F1 are far more informative because they explicitly measure the trade-off between correctly flagging churners (recall) and avoiding false alarms (precision).
+With a ~73/27 class split, a model that simply predicts "No Churn" for every customer scores ~73% accuracy while catching zero actual churners. Accuracy fails to reflect how well the model identifies the minority class — which is the entire business objective. By shifting the decision threshold from `0.50` to `0.58` based on F1-maximization, we achieved a significant jump in precision and overall F1 score while maintaining strong recall. 
 
 ---
 
 ## Design Decisions
 
-- **scikit-learn Pipelines throughout** — all preprocessing (imputation, scaling, encoding) is encapsulated in the pipeline. This eliminates data leakage between train and test because transformations are fitted only on training data.
-- **Class imbalance handling** — Logistic Regression uses `class_weight='balanced'`; XGBoost uses `scale_pos_weight` computed from the training distribution. Both approaches up-weight the minority class in the loss function without synthetic resampling.
+- **Advanced Feature Engineering** — derived 4 high-impact features based on EDA: `avg_monthly_spend`, `num_services`, `has_support`, and a `tenure` × `MonthlyCharges` interaction feature.
+- **scikit-learn Pipelines throughout** — all preprocessing (feature engineering, imputation, scaling, encoding) is encapsulated in the pipeline. This eliminates data leakage between train and test because transformations are fitted only on training data.
+- **Class imbalance handling** — Logistic Regression uses `class_weight='balanced'`; XGBoost uses `scale_pos_weight` computed from the training distribution.
+- **SHAP Interpretability** — exact global and local feature importance via TreeExplainer to provide human-readable justification for predictions.
 - **TotalCharges coercion** — the raw data stores this as a string, with 11 blank entries for tenure-0 customers. A custom transformer (`TotalChargesFixer`) handles this at both train and inference time.
 - **Inference parity** — the same serialized pipeline is used in both CLI and API modes, so predictions are guaranteed to be identical regardless of how the model is invoked.
 
@@ -129,8 +133,8 @@ With a ~73/27 class split, a model that simply predicts "No Churn" for every cus
 
 ## If Given 2 More Days
 
-1. **Feature engineering and selection** — derive interaction features (e.g., tenure × MonthlyCharges), add rolling aggregates if temporal data is available, and run recursive feature elimination to drop noise columns. This typically yields the largest marginal improvement.
+1. **Probability calibration** — calibrate predicted probabilities with Platt scaling or isotonic regression so they reflect true expected churn rates, allowing for more precise expected-value calculations.
 
-2. **Probability calibration and threshold optimization** — calibrate predicted probabilities with Platt scaling or isotonic regression so they reflect true churn rates, then optimize the decision threshold against business costs (cost of false retention offer vs. cost of losing a customer) rather than using the default 0.5 cutoff.
+2. **Advanced Model Ensembling** — train LightGBM, CatBoost, and a Deep Learning model (like TabNet) and stack them using a meta-classifier.
 
 3. **Production infrastructure** — containerize the API with Docker, add structured logging and Prometheus metrics (latency, prediction distribution drift), set up automated retraining on a schedule with data validation checks (Great Expectations or similar), and wire up CI/CD so model artifacts are versioned and deployed with zero downtime.
