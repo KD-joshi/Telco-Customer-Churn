@@ -1,0 +1,25 @@
+{
+  "logistic_regression": {
+    "accuracy": 0.7417,
+    "f1_score": 0.6152,
+    "roc_auc": 0.8418,
+    "pr_auc": 0.6312,
+    "threshold": 0.5
+  },
+  "xgboost_default_threshold": {
+    "accuracy": 0.7466,
+    "f1_score": 0.627,
+    "roc_auc": 0.8476,
+    "pr_auc": 0.662,
+    "threshold": 0.5
+  },
+  "xgboost_optimized_threshold": {
+    "accuracy": 0.7807,
+    "f1_score": 0.6411,
+    "roc_auc": 0.8476,
+    "pr_auc": 0.662,
+    "threshold": 0.5827000141143799
+  },
+  "best_model": "XGBoost (Tuned)",
+  "optimal_threshold": 0.5827
+}

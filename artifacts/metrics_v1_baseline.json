@@ -1,0 +1,15 @@
+{
+  "logistic_regression": {
+    "accuracy": 0.7381,
+    "f1_score": 0.6136,
+    "roc_auc": 0.8415,
+    "pr_auc": 0.6314
+  },
+  "xgboost_tuned": {
+    "accuracy": 0.7459,
+    "f1_score": 0.6232,
+    "roc_auc": 0.8464,
+    "pr_auc": 0.662
+  },
+  "best_model": "XGBoost (Tuned)"
+}
