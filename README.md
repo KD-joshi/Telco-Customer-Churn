@@ -2,6 +2,33 @@
 
 End-to-end machine learning pipeline that predicts whether a telecom customer will churn, built with scikit-learn pipelines for leak-free preprocessing, XGBoost for classification, and a FastAPI service for real-time inference.
 
+---
+
+## Model Comparison
+
+| Metric     | Logistic Regression | XGBoost (threshold=0.50) | XGBoost (threshold=0.58) |
+|------------|:-------------------:|:------------------------:|:------------------------:|
+| **Accuracy**| 0.7417              | 0.7466                   | **0.7807**               |
+| **F1 Score**| 0.6152              | 0.6270                   | **0.6411**               |
+| **ROC-AUC** | 0.8418              | 0.8476                   | **0.8476**               |
+| **PR-AUC**  | 0.6312              | 0.6620                   | **0.6620**               |
+
+**Selected model:** XGBoost (Optimized Threshold)
+
+**Best hyperparameters** (via 5-fold stratified CV, scored on ROC-AUC):
+- `learning_rate`: 0.05
+- `max_depth`: 3
+- `n_estimators`: 100
+- `subsample`: 0.8
+- `colsample_bytree`: 0.8
+- `min_child_weight`: 3
+
+### Why Not Accuracy?
+
+With a ~73/27 class split, a model that simply predicts "No Churn" for every customer scores ~73% accuracy while catching zero actual churners. Accuracy fails to reflect how well the model identifies the minority class — which is the entire business objective. By shifting the decision threshold from `0.50` to `0.58` based on F1-maximization, we achieved a significant jump in precision and overall F1 score while maintaining strong recall. 
+
+---
+
 ## Features
 
 - **Robust Preprocessing**: Handles implicit missing values in raw CSVs and ensures `TotalCharges` is properly typed without data leakage.
@@ -28,6 +55,8 @@ End-to-end machine learning pipeline that predicts whether a telecom customer wi
     ├── churn_pipeline.joblib   # Serialized best model pipeline
     └── metrics.json            # Evaluation metrics for all models
 ```
+
+---
 
 ## Quick Start
 
@@ -92,31 +121,6 @@ curl -X POST http://localhost:8000/predict \
   "churn_probability": 0.8425
 }
 ```
-
----
-
-## Model Comparison
-
-| Metric     | Logistic Regression | XGBoost (threshold=0.50) | XGBoost (threshold=0.58) |
-|------------|:-------------------:|:------------------------:|:------------------------:|
-| **Accuracy**| 0.7417              | 0.7466                   | **0.7807**               |
-| **F1 Score**| 0.6152              | 0.6270                   | **0.6411**               |
-| **ROC-AUC** | 0.8418              | 0.8476                   | **0.8476**               |
-| **PR-AUC**  | 0.6312              | 0.6620                   | **0.6620**               |
-
-**Selected model:** XGBoost (Optimized Threshold)
-
-**Best hyperparameters** (via 5-fold stratified CV, scored on ROC-AUC):
-- `learning_rate`: 0.05
-- `max_depth`: 3
-- `n_estimators`: 100
-- `subsample`: 0.8
-- `colsample_bytree`: 0.8
-- `min_child_weight`: 3
-
-### Why Not Accuracy?
-
-With a ~73/27 class split, a model that simply predicts "No Churn" for every customer scores ~73% accuracy while catching zero actual churners. Accuracy fails to reflect how well the model identifies the minority class — which is the entire business objective. By shifting the decision threshold from `0.50` to `0.58` based on F1-maximization, we achieved a significant jump in precision and overall F1 score while maintaining strong recall. 
 
 ---
 
