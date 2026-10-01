@@ -29,6 +29,28 @@ With a ~73/27 class split, a model that simply predicts "No Churn" for every cus
 
 ---
 
+## Key Visualizations
+
+### 1. The Imbalance Problem (EDA)
+![Target Distribution](EDA/figures/03_target_distribution.png)
+
+### 2. Key Insight: Contract vs. Tenure (EDA)
+![Contract vs Tenure](EDA/figures/08_contract_tenure_churn.png)
+
+### 3. Model Performance (ROC Curve Comparison)
+![ROC Curves](artifacts/figures/roc_comparison.png)
+
+### 4. Threshold Optimization
+![Threshold Analysis](artifacts/figures/threshold_analysis.png)
+
+### 5. Global Feature Importance (SHAP)
+![SHAP Feature Importance](artifacts/figures/shap_importance.png)
+
+### 6. Directional Feature Impact (SHAP Beeswarm)
+![SHAP Beeswarm Plot](artifacts/figures/shap_beeswarm.png)
+
+---
+
 ## Features
 
 - **Robust Preprocessing**: Handles implicit missing values in raw CSVs and ensures `TotalCharges` is properly typed without data leakage.
