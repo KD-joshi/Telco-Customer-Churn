@@ -4,14 +4,14 @@ End-to-end machine learning pipeline that predicts whether a telecom customer wi
 
 ---
 
-## Model Comparison
+## Model Comparison (Training Iterations)
 
-| Metric     | Logistic Regression | XGBoost (threshold=0.50) | XGBoost (threshold=0.58) |
-|------------|:-------------------:|:------------------------:|:------------------------:|
-| **Accuracy**| 0.7417              | 0.7466                   | **0.7807**               |
-| **F1 Score**| 0.6152              | 0.6270                   | **0.6411**               |
-| **ROC-AUC** | 0.8418              | 0.8476                   | **0.8476**               |
-| **PR-AUC**  | 0.6312              | 0.6620                   | **0.6620**               |
+| Metric     | Iteration 1: Logistic Regression | Iteration 2: XGBoost (Default 0.50) | Iteration 3: XGBoost (Optimized 0.58) |
+|------------|:--------------------------------:|:-----------------------------------:|:-------------------------------------:|
+| **Accuracy**| 0.7417                           | 0.7466                              | **0.7807**                            |
+| **F1 Score**| 0.6152                           | 0.6270                              | **0.6411**                            |
+| **ROC-AUC** | 0.8418                           | 0.8476                              | **0.8476**                            |
+| **PR-AUC**  | 0.6312                           | 0.6620                              | **0.6620**                            |
 
 **Selected model:** XGBoost (Optimized Threshold)
 
